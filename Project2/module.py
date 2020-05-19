@@ -3,6 +3,9 @@ import math
 
 
 class Module(object):
+    """
+    Base class to be inherited by other modules
+    """
     def __init__(self):
         self.parameters = []
 
@@ -17,13 +20,19 @@ class Module(object):
 
 
 class Linear(Module):
+    """
+    Implements linear layer, with or without bias
+    Parameters: number of input and output features
+    """
     def __init__(self, in_features, out_features, bias=True):
         super().__init__()
+        # using pytorch default weight initialization
         init_range = 1. / math.sqrt(in_features)
         self.weights = torch.Tensor(in_features, out_features).uniform_(-init_range, init_range)
         self.grad_w = torch.zeros((in_features, out_features))
         self.parameters = [(self.weights, self.grad_w)]
         if bias:
+            # default bias initialization
             self.bias = torch.Tensor(out_features).uniform_(-init_range, init_range)
             self.grad_b = torch.zeros(out_features)
             self.parameters.append((self.bias, self.grad_b))
@@ -31,6 +40,7 @@ class Linear(Module):
             self.bias = None
 
     def forward(self, input_):
+        # Returns tensor of size N * out_features
         self.input = input_
         if self.bias is not None:
             return torch.addmm(self.bias, input_, self.weights)
@@ -38,6 +48,7 @@ class Linear(Module):
             return input_.matmul(self.weights)
 
     def backward(self, grad_output):
+        # Returns tensor of size N * in_features, computes gradient wrt the weights
         self.grad_w += self.input.t().matmul(grad_output)
         grad_input = grad_output.matmul(self.weights.t())
         if self.bias is not None:
@@ -46,6 +57,10 @@ class Linear(Module):
 
 
 class ReLU(Module):
+    """
+    Implements Rectifier Linear Unit activation
+    Only positive inputs are back-propagated
+    """
     def forward(self, input_):
         self.input = input_
         return torch.relu(input_)
@@ -55,6 +70,10 @@ class ReLU(Module):
 
 
 class Tanh(Module):
+    """
+    Implements tanh activation
+    The derivative of tanh(x) is 1 - tanh(x) ** 2
+    """
     def forward(self, input_):
         self.input = input_
         return torch.tanh(input_)
@@ -64,6 +83,10 @@ class Tanh(Module):
 
 
 class Sequential(Module):
+    """
+    Implements sequential layer to combine multiple modules given in *args
+    # Usage example: Sequential(layer1, layer2, layer3)
+    """
     def __init__(self, *args):
         super().__init__()
         self.layers = list(args)
@@ -86,6 +109,11 @@ class Sequential(Module):
 class MSELoss(Module):
     def __init__(self):
         super().__init__()
+
+    # Overloading __call__ method
+    # Example:
+    # loss = MSELoss()
+    # loss(input, target)
 
     def __call__(self, input_, target):
         return self.forward(input_, target)

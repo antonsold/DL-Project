@@ -119,12 +119,16 @@ class MSELoss(Module):
         return self.forward(input_, target)
 
     def forward(self, input_, target):
+        if input_.size() != target.size():
+            raise Exception("Dimensions do not match")
         if target.dim() == 1:
             target = target.view(target.size(0), 1)
-        return (input_ - target).pow(2).sum().item()
+        return (input_ - target).pow(2).mean().item()
 
     def backward(self, input_, target):
+        if input_.size() != target.size():
+            raise Exception("Dimensions do not match")
         if target.dim() == 1:
             target = target.view(target.size(0), 1)
 
-        return (input_ - target).mul(2)
+        return (input_ - target).mul(2).div(target.size(0))

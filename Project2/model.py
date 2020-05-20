@@ -30,21 +30,26 @@ class Model:
         return
 
 
-def train_model(model, train_input, train_target, batch_size=100, n_epochs=100, loss=md.MSELoss(), learning_rate=0.001, print_loss=True):
+def train_model(model, train_input, train_target, batch_size=100, n_epochs=250, loss=md.MSELoss(), learning_rate=0.1, print_loss=True):
     sample_size = train_input.size(0)
     sgd = opt.SGD(model.parameters, learning_rate)
     for epoch in range(n_epochs):
         cumulative_loss = 0
         for n_start in range(0, sample_size, batch_size):
+            # resetting the gradients
             model.zero_grad()
             output = model(train_input[n_start : n_start + batch_size])
-            cumulative_loss += loss(output, train_target[n_start : n_start + batch_size])
+            # accumulating the loss over the mini-batches
+            cumulative_loss += loss(output, train_target[n_start : n_start + batch_size]) * batch_size
+            # calculating the gradient of the loss wrt final outputs
             loss_grad = loss.backward(output, train_target[n_start : n_start + batch_size])
+            # propagating it backward
             model.backward(loss_grad)
+            # updating the parameters
             sgd.step()
         if print_loss:
             print("Epoch: %i" % epoch)
-            print("Loss: %f" % cumulative_loss)
+            print("Loss: %f" % (cumulative_loss / sample_size))
 
 
 def accuracy(true_target, predicted):

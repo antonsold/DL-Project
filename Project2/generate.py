@@ -3,6 +3,7 @@ import math
 
 
 def generate_set(size):
+    # generating uniformly distributed in [0, 1] * [0, 1] points
     input_ = torch.Tensor(size, 2).uniform_(0, 1)
     # computing labels in [0, 1]
     target_single = input_.sub(0.5).pow(2).sum(axis=1).sub(1 / (math.pi * 2)).sign().view(-1, 1)

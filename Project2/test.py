@@ -1,7 +1,7 @@
 import torch
-import module as md
-import model as m
-import generate as gen
+from modules import module as md
+from modules import model as m
+from modules import generate as gen
 torch.set_grad_enabled(False)
 torch.manual_seed(123)
 
@@ -14,7 +14,7 @@ test_input, test_target = gen.generate_set(sample_size)
 
 
 layers = [md.Linear(2, 25), md.ReLU(), md.Linear(25, 25), md.ReLU(), md.Linear(25, 25),
-          md.ReLU(), md.Linear(25, 2), md.Tanh()]
+          md.ReLU(), md.Linear(25, 2)]
 model = m.Model(layers)
 
 

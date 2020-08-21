@@ -1,6 +1,0 @@
-Best accuracy 82.00 (3.300) with params for model model 1 : optim : Adam, lr : 0.0005, batchsize : 16
-
-Aux loss : primary model : mettre des layers dense avant la aux loss
-
-Training time : bien, ajouter : inference time + number parameters ?
-
